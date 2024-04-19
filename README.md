@@ -22,10 +22,28 @@ npm install
 npm run dev
 ```
 
+4. Run migrates PrismaORM
+
+```bash
+npx prisma migrate dev --name init
+
+#or
+
+npx prisma db push
+```
+
+5. If you want, explore Prisma Studio
+
+```bash
+npx prisma studio
+```
+
 ## Stack
 
 - Typescript
 - Express
+- Prisma
+- Docker
 - Postgres
 
 ## Authors

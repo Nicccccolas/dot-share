@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -41,5 +41,14 @@ app.use(express.urlencoded({ extended: false }));
 
 // ROUTES
 app.use(router);
+
+// State of API
+app.get("/", ({ res }) => {
+  res?.send({
+    api: "API Dot Share",
+    state: "Up and Running",
+    version: "1.0.0",
+  });
+});
 
 app.listen(PORT, () => console.log(`Server is running on PORT: ${PORT}`));
