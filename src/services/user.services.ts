@@ -1,5 +1,6 @@
 import { Users } from "../interfaces/users.interface";
 import { prisma } from "../libs/prisma";
+import { crypted } from "../utils/crypto";
 
 export class UsersService {
   async createUser(user: Users) {
@@ -7,7 +8,7 @@ export class UsersService {
       data: {
         username: user.username,
         email: user.email,
-        password: user.password,
+        password: await crypted(user.password),
         is_active: true,
       },
     });
