@@ -1,7 +1,8 @@
-import { Router, Request, Response } from "express";
-import { UserController } from "../controllers/user";
+import { Router } from "express";
+import { UsersController } from "../controllers/users.controllers";
 
-const userController = new UserController();
+const userController = new UsersController();
+
 const router: Router = Router();
 
 router.get("/", userController.getUsers);

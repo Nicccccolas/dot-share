@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { handleHttp } from "../utils/error.handlers";
-import { UserService } from "../services/user";
+import { UsersService } from "../services/user.services";
 
-const userService = new UserService();
+const userService = new UsersService();
 
-export class UserController {
+export class UsersController {
   constructor() {}
   async getUser(req: Request, res: Response) {
     try {
