@@ -23,7 +23,7 @@ model Roles {
 }
 
 model Users {
-  id         Int         @id @default(autoincrement())
+  id         String      @id @default(uuid())
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
   username   String
@@ -36,25 +36,25 @@ model Users {
 }
 
 model Profiles {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid())
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   bio        String
   birthday   DateTime
   image_url  String
   user       Users    @relation(fields: [user_id], references: [id])
-  user_id    Int      @unique
+  user_id    String   @unique
 }
 
 model Posts {
-  id         Int         @id @default(autoincrement())
+  id         String      @id @default(uuid())
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
   title      String
   content    String
   image_url  String
   author     Users       @relation(fields: [author_id], references: [id])
-  author_id  Int
+  author_id  String
   reactions  Reactions[]
 }
 
@@ -64,7 +64,7 @@ model Reactions {
   updated_at DateTime @updatedAt
   type       String
   user       Users    @relation(fields: [user_id], references: [id])
-  user_id    Int
+  user_id    String
   post       Posts    @relation(fields: [post_id], references: [id])
-  post_id    Int
+  post_id    String
 }
