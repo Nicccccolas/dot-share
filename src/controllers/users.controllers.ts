@@ -15,8 +15,22 @@ export class UsersController {
 
   async getUsers(req: Request, res: Response) {
     try {
+      const users = await userService.findUsers();
+      console.log("UsersController: ", users);
+      return res.status(200).json(users);
     } catch (error) {
       handleHttp(res, "ERROR_GET_USERS");
+    }
+  }
+
+  async getUserById({ params }: Request, res: Response) {
+    const { id } = params;
+    try {
+      const user = await userService.findUserById(id);
+      const data = user ? user : "NOT_FOUND";
+      return res.status(200).json(data);
+    } catch (error) {
+      handleHttp(res, "ERROR_GET_USER", error);
     }
   }
 
