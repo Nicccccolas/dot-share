@@ -6,4 +6,14 @@ const handleHttp = (res: Response, error: string, errorRaw?: any) => {
   res.send({ error });
 };
 
-export { handleHttp };
+const throwError = (res: Response, error: any) => {
+  if (process.env.NODE_ENV !== "production") console.error(error);
+
+  res.status(error.statusCode);
+  res.json({
+    message: error.message,
+    code: error.statusCode
+  });
+};
+
+export { handleHttp, throwError };
