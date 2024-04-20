@@ -1,8 +1,11 @@
 import { Router } from "express";
+import { AuthController } from "../auth/auth.controllers";
+
+const authController = new AuthController();
 
 const router: Router = Router();
 
-router.post("/sign-in");
+router.post("/register", authController.register);
 
 router.post("/login");
 
