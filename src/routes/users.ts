@@ -7,6 +7,6 @@ const router: Router = Router();
 
 router.get("/", userController.getUsers);
 router.get("/:id", userController.getUserById);
-router.post("/", userController.postUser);
+router.post("/sign-in", userController.postUser);
 
 export { router };
