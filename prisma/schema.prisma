@@ -69,7 +69,7 @@ model Reactions {
   post_id    String
 }
 
-model Categories {
+model Category {
   id          String   @id @default(uuid()) @unique
   name        String
   description String
