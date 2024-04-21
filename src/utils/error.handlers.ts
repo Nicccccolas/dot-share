@@ -12,7 +12,7 @@ const throwError = (res: Response, error: any) => {
   res.status(error.statusCode);
   res.json({
     message: error.message,
-    code: error.statusCode
+    code: error?.statusCode
   });
 };
 
