@@ -30,7 +30,7 @@ model Users {
   email      String      @unique
   password   String
   is_active  Boolean     @default(true)
-  post       Posts[]
+  post       Post[]
   profile    Profiles?
   reactions  Reactions[]
   Tokens     Tokens[]
@@ -58,16 +58,18 @@ model Profiles {
   user_id    String   @unique
 }
 
-model Posts {
+model Post {
   id         String      @id @default(uuid())
-  created_at DateTime    @default(now())
-  updated_at DateTime    @updatedAt
   title      String
-  content    String
-  image_url  String
-  author     Users       @relation(fields: [author_id], references: [id])
-  author_id  String
+  content    String?
+  imageUrl   String?
+  author     Users       @relation(fields: [authorId], references: [id])
+  authorId   String      @map("author_id")
   reactions  Reactions[]
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("posts")
 }
 
 model Reactions {
@@ -77,7 +79,7 @@ model Reactions {
   type       String
   user       Users    @relation(fields: [user_id], references: [id])
   user_id    String
-  post       Posts    @relation(fields: [post_id], references: [id])
+  post       Post     @relation(fields: [post_id], references: [id])
   post_id    String
 }
 
