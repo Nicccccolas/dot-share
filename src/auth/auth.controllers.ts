@@ -39,4 +39,24 @@ export class AuthController {
       throwError(res, error);
     }
   }
+
+  async logout(req: Request, res: Response) {
+    const refreshToken = req.body.refreshToken;
+    try {
+      await authService.logout(refreshToken);
+      res.status(204).send({ message: "No content" });
+    } catch (error) {
+      throwError(res, error);
+    }
+  }
+
+  async refreshTokens(req: Request, res: Response) {
+    const refreshToken = req.body.refreshToken;
+    try {
+      const tokens = await authService.refreshAuth(refreshToken);
+      res.send({ ...tokens });
+    } catch (error) {
+      throwError(res, error);
+    }
+  }
 }
