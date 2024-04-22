@@ -1,18 +1,13 @@
 import jwt from "jsonwebtoken";
 import moment, { Moment } from "moment";
-import { Tokens, TokenType } from "@prisma/client";
+import { Token, TokenType } from "@prisma/client";
 import { prisma } from "../libs/prisma";
 import "dotenv/config";
 import { AuthTokenResponse } from "../interfaces/tokens.interface";
+import { NotFoundException } from "@/errors/not_found.exception";
 
 const jwtSecret: string = process.env.JWT_SECRET as string;
 const accessExpirationMinutes = process.env.JWT_ACCESS_EXPIRATION_MINUTES;
-
-if (!jwtSecret || !accessExpirationMinutes) {
-  throw new Error(
-    "Missing JWT_SECRET or JWT_ACCESS_EXPIRATION_MINUTES in environment variables",
-  );
-}
 
 export class TokensServices {
   generateToken = (
@@ -36,8 +31,8 @@ export class TokensServices {
     expires: Moment,
     type: TokenType,
     blacklisted = false,
-  ): Promise<Tokens> => {
-    const createdToken = await prisma.tokens.create({
+  ): Promise<Token> => {
+    const createdToken = await prisma.token.create({
       data: {
         userId: id,
         token,
@@ -49,10 +44,10 @@ export class TokensServices {
     return createdToken;
   };
 
-  verifyToken = async (token: string, type: TokenType): Promise<Tokens> => {
+  verifyToken = async (token: string, type: TokenType): Promise<Token> => {
     const payload = jwt.verify(token, jwtSecret);
     const userId: string = payload.sub as string;
-    const tokenData = await prisma.tokens.findFirst({
+    const tokenData = await prisma.token.findFirst({
       where: {
         userId: userId,
         token,
@@ -61,7 +56,7 @@ export class TokensServices {
       },
     });
     if (!tokenData) {
-      throw new Error("TOKEN_NOT_FOUND");
+      throw new NotFoundException();
     }
     return tokenData;
   };

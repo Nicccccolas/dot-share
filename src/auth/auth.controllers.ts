@@ -17,10 +17,10 @@ export class AuthController {
     try {
       const newUser = await userService.createUser(user);
       const userWithoutPassword = exclude(newUser, [
-        "is_active",
+        "isActive",
         "password",
-        "created_at",
-        "updated_at",
+        "createdAt",
+        "updatedAt",
       ]);
       const tokens = await tokenService.generateAuthTokens(newUser);
       res.status(201).json({ user: userWithoutPassword, tokens });

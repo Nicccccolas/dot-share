@@ -1,4 +1,4 @@
-import { TokenType, Users } from "@prisma/client";
+import { TokenType, User } from "@prisma/client";
 import { UsersService } from "@/services/user.services";
 import { compare } from "bcrypt";
 import { InvalidCredentialsException } from "@/errors/invalid-credentials.exception";
@@ -14,7 +14,7 @@ export class AuthService {
   async loginWithEmailAndPassword(
     email: string,
     password: string,
-  ): Promise<Users> {
+  ): Promise<User> {
     const user = await userService.findUserByEmail(email);
     const hashPassword = user.password;
     if (!user || !(await compare(password, hashPassword))) {
@@ -24,7 +24,7 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    const refreshTokenData = await prisma.tokens.findFirst({
+    const refreshTokenData = await prisma.token.findFirst({
       where: {
         token: refreshToken,
         type: TokenType.REFRESH,
@@ -34,7 +34,7 @@ export class AuthService {
     if (!refreshTokenData) {
       throw new NotFoundException();
     }
-    await prisma.tokens.delete({
+    await prisma.token.delete({
       where: {
         id: refreshTokenData.id,
       },
@@ -48,7 +48,7 @@ export class AuthService {
         TokenType.REFRESH,
       );
       const { userId } = refreshTokenData;
-      await prisma.tokens.delete({ where: { id: refreshTokenData.id } });
+      await prisma.token.delete({ where: { id: refreshTokenData.id } });
       return tokensService.generateAuthTokens({ id: userId });
     } catch (error) {
       throw new NotFoundException();
