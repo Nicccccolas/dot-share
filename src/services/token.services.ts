@@ -14,7 +14,7 @@ if (!jwtSecret || !accessExpirationMinutes) {
   );
 }
 
-export class TokenServices {
+export class TokensServices {
   generateToken = (
     id: string,
     expires: Moment,
@@ -66,10 +66,9 @@ export class TokenServices {
     return tokenData;
   };
 
-  generateAuthToken = async (user: {
+  generateAuthTokens = async (user: {
     id: string;
   }): Promise<AuthTokenResponse> => {
-    console.log("USER: ", user.id);
     const accessTokenExpires = moment().add(accessExpirationMinutes, "minutes");
     const accessToken = this.generateToken(
       user.id,
