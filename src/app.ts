@@ -52,7 +52,7 @@ app.use("/api/v1", router);
 // }
 
 // State of API
-app.get("/", ({ res }) => {
+app.get("/api/v1", ({ res }) => {
   res?.send({
     api: "API Dot Share",
     state: "Up and Running",

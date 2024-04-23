@@ -4,10 +4,12 @@ import { UsersService } from "@/services/user.services";
 import { TokensServices } from "@/services/token.services";
 import { AuthService } from "./auth.services";
 import exclude from "@/utils/exclude";
+import { MailService } from "@/config/transport";
 
 const userService = new UsersService();
 const authService = new AuthService();
 const tokenService = new TokensServices();
+const mailService = new MailService();
 
 export class AuthController {
   constructor() {}
@@ -64,7 +66,7 @@ export class AuthController {
     try {
       const resetPassswordToken =
         await tokenService.generateResetPasswordToken(email);
-      return res.send();
+      await mailService.sendResetPasswordEmail(email, resetPassswordToken);
     } catch (error) {
       throwError(res, error);
     }
