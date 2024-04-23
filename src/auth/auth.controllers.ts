@@ -71,4 +71,16 @@ export class AuthController {
       throwError(res, error);
     }
   }
+
+  async resetPassword(req: Request, res: Response) {
+    const resetPasswordToken: string = req.query.token as string;
+    const { newPassword } = req.body;
+
+    try {
+      await authService.resetPassword(resetPasswordToken, newPassword);
+      res.status(204).send();
+    } catch (error) {
+      throwError(res, error);
+    }
+  }
 }
