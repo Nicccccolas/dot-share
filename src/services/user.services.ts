@@ -1,7 +1,5 @@
-import { UserEmailUsedException } from "@/errors/user-email-used.exception";
 import prisma from "@/config/prisma";
 import { crypted } from "@/utils/crypto";
-import { InvalidCredentialsException } from "@/errors/invalid-credentials.exception";
 import ErrorApi from "@/utils/errorApi";
 import { HttpStatus } from "@/enums/https-status.enum";
 import { Prisma, User } from "@prisma/client";
@@ -9,8 +7,15 @@ import { Prisma, User } from "@prisma/client";
 export class UsersService {
   constructor() {}
   async createUser(user: User) {
-    if (await prisma.user.findUnique({ where: { email: user.email } })) {
-      throw new UserEmailUsedException();
+    if (!user.username || !user.email || !user.password) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "All fields are required");
+    }
+
+    if (await this.findUserByEmail(user.email)) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "Email already taken");
+    }
+    if (await this.findUserByUsername(user.username)) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "Username already taken");
     }
     const newUser = await prisma.user.create({
       data: {
@@ -36,11 +41,18 @@ export class UsersService {
   async findUserByEmail(email: string) {
     const user = await prisma.user.findUnique({
       where: {
-        email: email,
+        email,
       },
     });
-    if (!user) throw new InvalidCredentialsException();
     return user;
+  }
+
+  async findUserByUsername(username: string) {
+    return await prisma.user.findUnique({
+      where: {
+        username,
+      },
+    });
   }
 
   async updateUser(id: string, data: Prisma.UserUpdateInput) {
@@ -53,6 +65,12 @@ export class UsersService {
       throw new ErrorApi(HttpStatus.BAD_REQUEST, "Email already taken");
     }
 
+    if (
+      data.username &&
+      (await this.findUserByUsername(data.username as string))
+    ) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "Username already taken");
+    }
     const userUpdated = await prisma.user.update({
       where: { id: user.id },
       data: data,

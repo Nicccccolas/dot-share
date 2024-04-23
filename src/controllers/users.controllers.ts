@@ -10,7 +10,6 @@ export class UsersController {
   async getUsers(req: Request, res: Response) {
     try {
       const users = await userService.findUsers();
-      console.log("UsersController: ", users);
       return res.status(200).json(users);
     } catch (error) {
       throwError(res, error);

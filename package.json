@@ -12,7 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "5.12.1",
+    "@prisma/client": "^5.13.0",
     "bcrypt": "5.1.1",
     "cors": "2.8.5",
     "dotenv": "16.4.5",
@@ -44,7 +44,7 @@
     "@typescript-eslint/parser": "7.7.0",
     "eslint": "^8.56.0",
     "nodemon": "3.1.0",
-    "prisma": "5.12.1",
+    "prisma": "^5.13.0",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
     "typescript": "^5.4.5"

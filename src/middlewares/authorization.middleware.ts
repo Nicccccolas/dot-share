@@ -2,7 +2,10 @@ import passport from "passport";
 import { User } from "@prisma/client";
 import { roleRights } from "../utils/roles";
 import { Request, Response, NextFunction } from "express";
+import ErrorApi from "@/utils/errorApi";
+import { HttpStatus } from "@/enums/https-status.enum";
 
+/* eslint-disable */
 const verifyCallback =
   (
     req: any,
@@ -12,7 +15,9 @@ const verifyCallback =
   ) =>
   async (err: unknown, user: User | false, info: unknown) => {
     if (err || info || !user) {
-      return reject(new Error("Please authenticate"));
+      return reject(
+        new ErrorApi(HttpStatus.UNAUTHORIZED, "Please authenticate"),
+      );
     }
     req.user = user;
 

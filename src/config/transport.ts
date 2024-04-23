@@ -19,6 +19,11 @@ export class MailService {
   constructor() {}
 
   async sendEmail(to: string, subject: string, text: string) {
+    console.log("DATA: ", {
+      to,
+      subject,
+      text,
+    });
     const message = { from: config.email.from, to, subject, text };
     await transport.sendMail(message);
   }
@@ -26,7 +31,7 @@ export class MailService {
   async sendResetPasswordEmail(to: string, token: string) {
     const subject = "Reset password";
 
-    const resetPasswordUrl = `http://localhost:300/api/v1/reset-password?token=${token}`;
+    const resetPasswordUrl = `http://localhost:3000/api/v1/auth/reset-password?token=${token}`;
     const text = `Dear user,
 To reset your password, click on this link: ${resetPasswordUrl}
 If you did not request any password resets, then ignore this email.`;

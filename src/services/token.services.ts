@@ -5,7 +5,8 @@ import prisma from "@/config/prisma";
 import config from "@/config/config";
 import { UsersService } from "./user.services";
 import { AuthTokenResponse } from "../interfaces/tokens.interface";
-import { NotFoundException } from "@/errors/not_found.exception";
+import ErrorApi from "@/utils/errorApi";
+import { HttpStatus } from "@/enums/https-status.enum";
 
 const userService = new UsersService();
 
@@ -25,13 +26,13 @@ export class TokensServices {
     return jwt.sign(payload, secret);
   };
 
-  saveToken = async (
+  async saveToken(
     id: string,
     token: string,
     expires: Moment,
     type: TokenType,
     blacklisted = false,
-  ): Promise<Token> => {
+  ): Promise<Token> {
     const createdToken = await prisma.token.create({
       data: {
         userId: id,
@@ -41,10 +42,11 @@ export class TokensServices {
         blacklisted,
       },
     });
+    console.log("CREATED TOKEN: ", createdToken);
     return createdToken;
-  };
+  }
 
-  verifyToken = async (token: string, type: TokenType): Promise<Token> => {
+  async verifyToken(token: string, type: TokenType): Promise<Token> {
     const payload = jwt.verify(token, config.jwt.secret);
     const userId: string = payload.sub as string;
     const tokenData = await prisma.token.findFirst({
@@ -56,14 +58,12 @@ export class TokensServices {
       },
     });
     if (!tokenData) {
-      throw new NotFoundException();
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "Token not found");
     }
     return tokenData;
-  };
+  }
 
-  generateAuthTokens = async (user: {
-    id: string;
-  }): Promise<AuthTokenResponse> => {
+  async generateAuthTokens(user: { id: string }): Promise<AuthTokenResponse> {
     const accessTokenExpires = moment().add(
       config.jwt.accessExpirationMinutes,
       "minutes",
@@ -100,12 +100,15 @@ export class TokensServices {
         expires: refreshTokenExpires.toDate(),
       },
     };
-  };
+  }
 
   async generateResetPasswordToken(email: string) {
+    if (!email) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "Email is required");
+    }
     const user = await userService.findUserByEmail(email);
     if (!user) {
-      throw new NotFoundException();
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "User not found");
     }
     const expires = moment().add(
       config.jwt.resetPasswordExpirationMinutes,

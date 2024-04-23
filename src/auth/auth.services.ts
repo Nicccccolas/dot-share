@@ -1,14 +1,14 @@
 import { TokenType, User } from "@prisma/client";
 import { UsersService } from "@/services/user.services";
-import { InvalidCredentialsException } from "@/errors/invalid-credentials.exception";
 import prisma from "@/config/prisma";
-import { NotFoundException } from "@/errors/not_found.exception";
 import { TokensServices } from "@/services/token.services";
 import ErrorApi from "@/utils/errorApi";
 import { HttpStatus } from "@/enums/https-status.enum";
 import { crypted, compare } from "@/utils/crypto";
+
 const userService = new UsersService();
 const tokensService = new TokensServices();
+
 export class AuthService {
   constructor() {}
 
@@ -16,10 +16,13 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<User> {
+    if (!email || !password) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "All fields are required");
+    }
     const user = await userService.findUserByEmail(email);
-    const hashPassword = user.password;
-    if (!user || !(await compare(password, hashPassword))) {
-      throw new InvalidCredentialsException();
+    const hashedPassword = user?.password as string;
+    if (!user || !(await compare(password, hashedPassword))) {
+      throw new ErrorApi(HttpStatus.UNAUTHORIZED, "Invalid credentials");
     }
     return user;
   }
@@ -32,8 +35,8 @@ export class AuthService {
         blacklisted: false,
       },
     });
-    if (!refreshTokenData) {
-      throw new NotFoundException();
+    if (!refreshTokenData || !refreshToken) {
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "Refresh token not found");
     }
     await prisma.token.delete({
       where: {
@@ -52,7 +55,7 @@ export class AuthService {
       await prisma.token.delete({ where: { id: refreshTokenData.id } });
       return tokensService.generateAuthTokens({ id: userId });
     } catch (error) {
-      throw new NotFoundException();
+      throw new ErrorApi(HttpStatus.UNAUTHORIZED, "Please authenticate");
     }
   }
 
@@ -64,16 +67,13 @@ export class AuthService {
       );
 
       const user = await userService.findUserById(tokenData.userId);
-      if (!user) {
-        throw new Error();
-      }
-
       const hashPassword = await crypted(newPassword);
+
       await userService.updateUser(tokenData.userId, {
         password: hashPassword,
       });
       await prisma.token.deleteMany({
-        where: { userId: user.id, type: TokenType.RESET_PASSWORD },
+        where: { userId: user?.id, type: TokenType.RESET_PASSWORD },
       });
     } catch (error) {
       throw new ErrorApi(HttpStatus.UNAUTHORIZED, "Password reset failed!");

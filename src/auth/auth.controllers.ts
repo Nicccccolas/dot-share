@@ -15,9 +15,9 @@ export class AuthController {
   constructor() {}
 
   async register(req: Request, res: Response) {
-    const user = req.body;
+    const data = req.body;
     try {
-      const newUser = await userService.createUser(user);
+      const newUser = await userService.createUser(data);
       const userWithoutPassword = exclude(newUser, [
         "isActive",
         "password",
@@ -43,17 +43,17 @@ export class AuthController {
   }
 
   async logout(req: Request, res: Response) {
-    const refreshToken = req.body.refreshToken;
+    const { refreshToken } = req.body;
     try {
       await authService.logout(refreshToken);
-      res.status(204).send({ message: "No content" });
+      res.status(204).send();
     } catch (error) {
       throwError(res, error);
     }
   }
 
   async refreshTokens(req: Request, res: Response) {
-    const refreshToken = req.body.refreshToken;
+    const { refreshToken } = req.body;
     try {
       const tokens = await authService.refreshAuth(refreshToken);
       res.send({ ...tokens });
@@ -66,7 +66,9 @@ export class AuthController {
     try {
       const resetPassswordToken =
         await tokenService.generateResetPasswordToken(email);
+
       await mailService.sendResetPasswordEmail(email, resetPassswordToken);
+      res.status(200).json({ message: "Email sended!" });
     } catch (error) {
       throwError(res, error);
     }
@@ -78,7 +80,7 @@ export class AuthController {
 
     try {
       await authService.resetPassword(resetPasswordToken, newPassword);
-      res.status(204).send();
+      res.status(204).json({ message: "Password changed" });
     } catch (error) {
       throwError(res, error);
     }
