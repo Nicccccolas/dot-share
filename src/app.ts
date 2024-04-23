@@ -45,11 +45,11 @@ app.use(passport.initialize());
 passport.use(jwtStrategy);
 
 // v1 api routes
-app.use("api/v1", router);
+app.use("/api/v1", router);
 
-if (config.env === "production") {
-  app.use("v1/auth");
-}
+// if (config.env === "production") {
+// app.use("/v1/auth");
+// }
 
 // State of API
 app.get("/", ({ res }) => {

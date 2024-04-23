@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon ./src/app.ts",
-    "start:dev": "NODE_ENV=development nodemon"
+    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "start:dev": "NODE_ENV=development nodemon",
+    "db:push": "prisma db push"
   },
   "keywords": [],
   "author": "",
@@ -56,7 +57,7 @@
     "watch": [
       "src"
     ],
-    "exec": "node -r tsconfig-paths/register -r ts-node/register ./src/app.ts",
+    "exec": "node -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
     "ext": "ts, js"
   }
 }
