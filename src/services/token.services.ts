@@ -1,20 +1,20 @@
 import jwt from "jsonwebtoken";
 import moment, { Moment } from "moment";
 import { Token, TokenType } from "@prisma/client";
-import { prisma } from "../libs/prisma";
-import "dotenv/config";
+import prisma from "@/config/prisma";
+import config from "@/config/config";
+import { UsersService } from "./user.services";
 import { AuthTokenResponse } from "../interfaces/tokens.interface";
 import { NotFoundException } from "@/errors/not_found.exception";
 
-const jwtSecret: string = process.env.JWT_SECRET as string;
-const accessExpirationMinutes = process.env.JWT_ACCESS_EXPIRATION_MINUTES;
+const userService = new UsersService();
 
 export class TokensServices {
   generateToken = (
     id: string,
     expires: Moment,
     type: TokenType,
-    secret: string = jwtSecret,
+    secret: string = config.jwt.secret,
   ): string => {
     const payload = {
       sub: id,
@@ -45,7 +45,7 @@ export class TokensServices {
   };
 
   verifyToken = async (token: string, type: TokenType): Promise<Token> => {
-    const payload = jwt.verify(token, jwtSecret);
+    const payload = jwt.verify(token, config.jwt.secret);
     const userId: string = payload.sub as string;
     const tokenData = await prisma.token.findFirst({
       where: {
@@ -64,7 +64,10 @@ export class TokensServices {
   generateAuthTokens = async (user: {
     id: string;
   }): Promise<AuthTokenResponse> => {
-    const accessTokenExpires = moment().add(accessExpirationMinutes, "minutes");
+    const accessTokenExpires = moment().add(
+      config.jwt.accessExpirationMinutes,
+      "minutes",
+    );
     const accessToken = this.generateToken(
       user.id,
       accessTokenExpires,
@@ -72,7 +75,7 @@ export class TokensServices {
     );
 
     const refreshTokenExpires = moment().add(
-      process.env.JWT_ACCESS_EXPIRATION_DAYS,
+      config.jwt.refreshExpirationDays,
       "days",
     );
     const refreshToken = this.generateToken(
@@ -98,4 +101,27 @@ export class TokensServices {
       },
     };
   };
+
+  async generateResetPasswordToken(email: string) {
+    const user = await userService.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    const expires = moment().add(
+      config.jwt.resetPasswordExpirationMinutes,
+      "minutes",
+    );
+    const resetPasswordToken = this.generateToken(
+      user.id,
+      expires,
+      TokenType.RESET_PASSWORD,
+    );
+    await this.saveToken(
+      user.id,
+      resetPasswordToken,
+      expires,
+      TokenType.RESET_PASSWORD,
+    );
+    return resetPasswordToken;
+  }
 }

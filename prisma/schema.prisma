@@ -13,17 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Role {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        String
-  permissions String[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@map("roles")
-}
-
 model User {
   id        String     @id @default(uuid())
   createdAt DateTime   @default(now()) @map("created_at")
@@ -32,6 +21,7 @@ model User {
   email     String     @unique
   password  String
   isActive  Boolean    @default(true)
+  role      Role       @default(USER)
   post      Posts[]
   profile   Profile?
   reaction  Reaction[]
@@ -101,6 +91,11 @@ model Category {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("categories")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum TokenType {

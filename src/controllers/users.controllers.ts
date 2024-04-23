@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { throwError } from "../utils/error.handlers";
-import { UsersService } from "../services/user.services";
+import { throwError } from "@/utils/error.handlers";
+import { UsersService } from "@/services/user.services";
 
 const userService = new UsersService();
 

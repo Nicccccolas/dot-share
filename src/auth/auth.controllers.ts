@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { throwError } from "../utils/error.handlers";
-import { UsersService } from "../services/user.services";
-import { TokensServices } from "../services/token.services";
+import { throwError } from "@/utils/error.handlers";
+import { UsersService } from "@/services/user.services";
+import { TokensServices } from "@/services/token.services";
 import { AuthService } from "./auth.services";
-import exclude from "../utils/exclude";
+import exclude from "@/utils/exclude";
 
 const userService = new UsersService();
 const authService = new AuthService();
@@ -55,6 +55,16 @@ export class AuthController {
     try {
       const tokens = await authService.refreshAuth(refreshToken);
       res.send({ ...tokens });
+    } catch (error) {
+      throwError(res, error);
+    }
+  }
+  async forgotPassword(req: Request, res: Response) {
+    const { email } = req.body;
+    try {
+      const resetPassswordToken =
+        await tokenService.generateResetPasswordToken(email);
+      return res.send();
     } catch (error) {
       throwError(res, error);
     }

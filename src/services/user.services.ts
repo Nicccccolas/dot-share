@@ -1,14 +1,14 @@
-import { UserEmailUserException } from "@/errors/user-email-used.exception";
-import { User } from "../interfaces/user.interface";
-import { prisma } from "../libs/prisma";
-import { crypted } from "../utils/crypto";
+import { UserEmailUsedException } from "@/errors/user-email-used.exception";
+import { User } from "@/interfaces/user.interface";
+import prisma from "@/config/prisma";
+import { crypted } from "@/utils/crypto";
 import { InvalidCredentialsException } from "@/errors/invalid-credentials.exception";
 
 export class UsersService {
   constructor() {}
   async createUser(user: User) {
-    if (await this.findUserByEmail(user.email)) {
-      throw new UserEmailUserException();
+    if (await prisma.user.findUnique({ where: { email: user.email } })) {
+      throw new UserEmailUsedException();
     }
     const newUser = await prisma.user.create({
       data: {

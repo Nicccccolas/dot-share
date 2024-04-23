@@ -1,6 +1,6 @@
 import { HttpStatus } from "@/enums/https-status.enum";
 
-export class UserEmailUserException extends Error {
+export class UserEmailUsedException extends Error {
   public statusCode;
 
   constructor() {

@@ -2,7 +2,7 @@ import { TokenType, User } from "@prisma/client";
 import { UsersService } from "@/services/user.services";
 import { compare } from "bcrypt";
 import { InvalidCredentialsException } from "@/errors/invalid-credentials.exception";
-import { prisma } from "@/libs/prisma";
+import prisma from "@/config/prisma";
 import { NotFoundException } from "@/errors/not_found.exception";
 import { TokensServices } from "@/services/token.services";
 

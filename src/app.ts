@@ -1,12 +1,18 @@
-import "dotenv/config";
-import express, { Response } from "express";
+import express from "express";
 import cors from "cors";
+import passport from "passport";
 import helmet from "helmet";
-
+import config from "./config/config";
 import { router } from "./routes";
+import { jwtStrategy } from "./strategies/passport-jwt-strategy";
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+
+// parse json request body
+app.use(express.json());
+
+// parse urlencoded request body
+app.use(express.urlencoded({ extended: true }));
 
 // CORS Settings
 const whitelist = ["http://localhost:8000"];
@@ -24,7 +30,7 @@ const corsOptions = {
   },
 };
 
-if (process.env.NODE_ENV === "production") {
+if (config.env === "production") {
   app.use(cors(corsOptions));
   /* Set security HTTP headers */
   /* For error ERR_BLOCKED_BY_RESPONSE.NotSameOrigin 200
@@ -35,12 +41,15 @@ if (process.env.NODE_ENV === "production") {
   app.use(cors());
 }
 
-// Accept Json & form-urlencoded
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(passport.initialize());
+passport.use(jwtStrategy);
 
-// ROUTES
-app.use(router);
+// v1 api routes
+app.use("api/v1", router);
+
+if (config.env === "production") {
+  app.use("v1/auth");
+}
 
 // State of API
 app.get("/", ({ res }) => {
@@ -51,4 +60,4 @@ app.get("/", ({ res }) => {
   });
 });
 
-app.listen(PORT, () => console.log(`Server is running on PORT: ${PORT}`));
+export default app;
