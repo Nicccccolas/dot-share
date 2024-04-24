@@ -30,21 +30,6 @@ model User {
   @@map("users")
 }
 
-<<<<<<< HEAD
-model Users {
-  id         String      @id @default(uuid())
-  created_at DateTime    @default(now())
-  updated_at DateTime    @updatedAt
-  username   String
-  email      String      @unique
-  password   String
-  is_active  Boolean     @default(true)
-  post       Post[]
-  profile    Profiles?
-  reactions  Reactions[]
-  Tokens     Tokens[]
-}
-
 model Token {
   id          String    @id @default(uuid())
   token       String
@@ -76,9 +61,9 @@ model Post {
   title      String
   content    String?
   imageUrl   String?
-  author     Users       @relation(fields: [authorId], references: [id])
+  author     User        @relation(fields: [authorId], references: [id])
   authorId   String      @map("author_id")
-  reactions  Reactions[]
+  reactions  Reaction[]
   createdAt  DateTime    @default(now()) @map("created_at")
   updatedAt  DateTime    @updatedAt @map("updated_at")
 
@@ -90,7 +75,7 @@ model Reaction {
   type      String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
-  post      Post    @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   postId    String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
