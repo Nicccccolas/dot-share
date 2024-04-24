@@ -38,12 +38,13 @@ export class UsersController {
   }
 
   async patchUser(req: Request, res: Response) {
-    const { id } = req.params;
+    console.log("USER: ", req.user);
+    const id? = req.user.sub as string;
     const data = req.body;
 
     try {
       const userUpdated = await userService.updateUser(id, data);
-      res.status(200).json(userUpdated);
+      return userUpdated;
     } catch (error) {
       throwError(res, error);
     }

@@ -8,6 +8,6 @@ const router: Router = Router();
 
 router.get("/", auth(), userController.getUsers);
 router.get("/:id", userController.getUserById);
-router.post("/sign-in", userController.postUser);
+router.patch("/:id", auth(), userController.patchUser);
 
 export { router };
