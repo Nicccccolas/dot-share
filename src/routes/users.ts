@@ -6,8 +6,9 @@ const userController = new UsersController();
 
 const router: Router = Router();
 
-router.get("/", auth(), userController.getUsers);
+router.get("/", auth("getUsers"), userController.getUsers);
 router.get("/:id", userController.getUserById);
 router.patch("/:id", auth(), userController.patchUser);
+router.patch("/desactivate/:id", auth(), userController.desactiveUser);
 
 export { router };

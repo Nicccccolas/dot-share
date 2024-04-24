@@ -86,4 +86,14 @@ export class UsersService {
     });
     return userUpdated;
   }
+
+  async desactivateUser(id: string) {
+    const user = await prisma.user.update({
+      where: { id: id },
+      data: { isActive: false },
+    });
+    if (!user) {
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "User not found");
+    }
+  }
 }

@@ -49,8 +49,11 @@ export class UsersController {
     }
   }
 
-  async deleteUser(req: Request, res: Response) {
+  async desactiveUser(req: Request, res: Response) {
+    const { id } = req.params;
     try {
+      await userService.desactivateUser(id);
+      res.status(200).json({ message: "Account desactivate succesfully" });
     } catch (error) {
       throwError(res, error);
     }
