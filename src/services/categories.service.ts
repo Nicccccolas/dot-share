@@ -1,5 +1,5 @@
 import { Category } from "@/models/category.model";
-import { prisma } from "../libs/prisma";
+import prisma from "../config/prisma";
 import { CreateCategoryParams, GetCategoryByIdParams } from "@/types/category";
 import { CategoryNotFoundException } from "@/errors/category-not-found.exception";
 
@@ -8,11 +8,13 @@ export class CategoriesService {
     return await prisma.category.findMany();
   }
 
-  public async getCategoryById(fields: GetCategoryByIdParams): Promise<Category> {
+  public async getCategoryById(
+    fields: GetCategoryByIdParams,
+  ): Promise<Category> {
     const categoryFounded = await prisma.category.findUnique({
       where: {
-        id: fields.categoryId
-      }
+        id: fields.categoryId,
+      },
     });
 
     if (!categoryFounded) throw new CategoryNotFoundException();
@@ -24,8 +26,8 @@ export class CategoriesService {
     const newCategory = await prisma.category.create({
       data: {
         name: fields.data.name,
-        description: fields.data.description
-      }
+        description: fields.data.description,
+      },
     });
 
     console.log({ create: newCategory });

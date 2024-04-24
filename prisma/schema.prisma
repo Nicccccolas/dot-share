@@ -13,15 +13,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Roles {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        String
-  permissions String[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+model User {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  username  String     @unique
+  email     String     @unique
+  password  String
+  isActive  Boolean    @default(true)
+  role      Role       @default(USER)
+  post      Posts[]
+  profile   Profile?
+  reaction  Reaction[]
+  token     Token[]
+
+  @@map("users")
 }
 
+<<<<<<< HEAD
 model Users {
   id         String      @id @default(uuid())
   created_at DateTime    @default(now())
@@ -36,26 +45,30 @@ model Users {
   Tokens     Tokens[]
 }
 
-model Tokens {
+model Token {
   id          String    @id @default(uuid())
   token       String
   type        TokenType
   expires     DateTime
   blacklisted Boolean
-  createdAt   DateTime  @default(now())
-  user        Users     @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  user        User      @relation(fields: [userId], references: [id])
   userId      String
+
+  @@map("tokens")
 }
 
-model Profiles {
-  id         String   @id @default(uuid())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  bio        String
-  birthday   DateTime
-  image_url  String
-  user       Users    @relation(fields: [user_id], references: [id])
-  user_id    String   @unique
+model Profile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  bio       String
+  birthday  DateTime
+  imageUrl  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+
+  @@map("profiles")
 }
 
 model Post {
@@ -72,25 +85,32 @@ model Post {
   @@map("posts")
 }
 
-model Reactions {
-  id         Int      @id @default(autoincrement())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  type       String
-  user       Users    @relation(fields: [user_id], references: [id])
-  user_id    String
-  post       Post     @relation(fields: [post_id], references: [id])
-  post_id    String
+model Reaction {
+  id        Int      @id @default(autoincrement())
+  type      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reactions")
 }
 
 model Category {
-  id          String   @id @default(uuid()) @unique
+  id          String   @id @unique @default(uuid())
   name        String
   description String
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("categories")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum TokenType {

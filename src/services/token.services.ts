@@ -1,25 +1,21 @@
 import jwt from "jsonwebtoken";
 import moment, { Moment } from "moment";
-import { Tokens, TokenType } from "@prisma/client";
-import { prisma } from "../libs/prisma";
-import "dotenv/config";
+import { Token, TokenType } from "@prisma/client";
+import prisma from "@/config/prisma";
+import config from "@/config/config";
+import { UsersService } from "./user.services";
 import { AuthTokenResponse } from "../interfaces/tokens.interface";
+import ErrorApi from "@/utils/errorApi";
+import { HttpStatus } from "@/enums/https-status.enum";
 
-const jwtSecret: string = process.env.JWT_SECRET as string;
-const accessExpirationMinutes = process.env.JWT_ACCESS_EXPIRATION_MINUTES;
+const userService = new UsersService();
 
-if (!jwtSecret || !accessExpirationMinutes) {
-  throw new Error(
-    "Missing JWT_SECRET or JWT_ACCESS_EXPIRATION_MINUTES in environment variables",
-  );
-}
-
-export class TokenServices {
+export class TokensServices {
   generateToken = (
     id: string,
     expires: Moment,
     type: TokenType,
-    secret: string = jwtSecret,
+    secret: string = config.jwt.secret,
   ): string => {
     const payload = {
       sub: id,
@@ -30,14 +26,14 @@ export class TokenServices {
     return jwt.sign(payload, secret);
   };
 
-  saveToken = async (
+  async saveToken(
     id: string,
     token: string,
     expires: Moment,
     type: TokenType,
     blacklisted = false,
-  ): Promise<Tokens> => {
-    const createdToken = await prisma.tokens.create({
+  ): Promise<Token> {
+    const createdToken = await prisma.token.create({
       data: {
         userId: id,
         token,
@@ -46,13 +42,14 @@ export class TokenServices {
         blacklisted,
       },
     });
+    console.log("CREATED TOKEN: ", createdToken);
     return createdToken;
-  };
+  }
 
-  verifyToken = async (token: string, type: TokenType): Promise<Tokens> => {
-    const payload = jwt.verify(token, jwtSecret);
+  async verifyToken(token: string, type: TokenType): Promise<Token> {
+    const payload = jwt.verify(token, config.jwt.secret);
     const userId: string = payload.sub as string;
-    const tokenData = await prisma.tokens.findFirst({
+    const tokenData = await prisma.token.findFirst({
       where: {
         userId: userId,
         token,
@@ -61,16 +58,16 @@ export class TokenServices {
       },
     });
     if (!tokenData) {
-      throw new Error("TOKEN_NOT_FOUND");
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "Token not found");
     }
     return tokenData;
-  };
+  }
 
-  generateAuthToken = async (user: {
-    id: string;
-  }): Promise<AuthTokenResponse> => {
-    console.log("USER: ", user.id);
-    const accessTokenExpires = moment().add(accessExpirationMinutes, "minutes");
+  async generateAuthTokens(user: { id: string }): Promise<AuthTokenResponse> {
+    const accessTokenExpires = moment().add(
+      config.jwt.accessExpirationMinutes,
+      "minutes",
+    );
     const accessToken = this.generateToken(
       user.id,
       accessTokenExpires,
@@ -78,7 +75,7 @@ export class TokenServices {
     );
 
     const refreshTokenExpires = moment().add(
-      process.env.JWT_ACCESS_EXPIRATION_DAYS,
+      config.jwt.refreshExpirationDays,
       "days",
     );
     const refreshToken = this.generateToken(
@@ -103,5 +100,31 @@ export class TokenServices {
         expires: refreshTokenExpires.toDate(),
       },
     };
-  };
+  }
+
+  async generateResetPasswordToken(email: string) {
+    if (!email) {
+      throw new ErrorApi(HttpStatus.BAD_REQUEST, "Email is required");
+    }
+    const user = await userService.findUserByEmail(email);
+    if (!user) {
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "User not found");
+    }
+    const expires = moment().add(
+      config.jwt.resetPasswordExpirationMinutes,
+      "minutes",
+    );
+    const resetPasswordToken = this.generateToken(
+      user.id,
+      expires,
+      TokenType.RESET_PASSWORD,
+    );
+    await this.saveToken(
+      user.id,
+      resetPasswordToken,
+      expires,
+      TokenType.RESET_PASSWORD,
+    );
+    return resetPasswordToken;
+  }
 }
