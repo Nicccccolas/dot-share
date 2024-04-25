@@ -37,15 +37,23 @@ export class UsersController {
     }
   }
 
-  async updateUser(req: Request, res: Response) {
+  async patchUser(req: Request, res: Response) {
+    const { id } = req.params;
+    const data = req.body;
+
     try {
+      const userUpdated = await userService.updateUser(id, data);
+      res.status(200).json(userUpdated);
     } catch (error) {
       throwError(res, error);
     }
   }
 
-  async deleteUser(req: Request, res: Response) {
+  async desactiveUser(req: Request, res: Response) {
+    const { id } = req.params;
     try {
+      await userService.desactivateUser(id);
+      res.status(200).json({ message: "Account desactivate succesfully" });
     } catch (error) {
       throwError(res, error);
     }

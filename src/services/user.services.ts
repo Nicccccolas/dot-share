@@ -35,6 +35,9 @@ export class UsersService {
 
   async findUserById(id: string) {
     const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "User not found");
+    }
     return user;
   }
 
@@ -82,5 +85,15 @@ export class UsersService {
       data: data,
     });
     return userUpdated;
+  }
+
+  async desactivateUser(id: string) {
+    const user = await prisma.user.update({
+      where: { id: id },
+      data: { isActive: false },
+    });
+    if (!user) {
+      throw new ErrorApi(HttpStatus.NOT_FOUND, "User not found");
+    }
   }
 }
