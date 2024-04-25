@@ -2,9 +2,11 @@ import express from "express";
 import cors from "cors";
 import passport from "passport";
 import helmet from "helmet";
+import compression from "compression";
 import config from "./config/config";
 import { router } from "./routes";
 import { jwtStrategy } from "./strategies/passport-jwt-strategy";
+import { errorConverter, errorHandler } from "./config/error";
 
 const app = express();
 
@@ -41,6 +43,10 @@ if (config.env === "production") {
   app.use(cors());
 }
 
+// gzip compression to reduce file size and improve performance
+app.use(compression());
+
+// jwt authentication strategy
 app.use(passport.initialize());
 passport.use(jwtStrategy);
 
@@ -59,5 +65,8 @@ app.get("/api/v1", ({ res }) => {
     version: "1.0.0",
   });
 });
+
+app.use(errorConverter);
+app.use(errorHandler);
 
 export default app;

@@ -23,7 +23,7 @@ export const errorConverter: ErrorRequestHandler = (
   next(error);
 };
 
-export const errorHand: ErrorRequestHandler = (
+export const errorHandler: ErrorRequestHandler = (
   err: any,
   req: Request,
   res: Response,
