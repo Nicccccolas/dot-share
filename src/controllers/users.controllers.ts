@@ -10,7 +10,7 @@ export class UsersController {
   async getUsers(req: Request, res: Response) {
     try {
       const users = await userService.findUsers();
-      return res.status(200).json(users);
+      res.status(200).json(users);
     } catch (error) {
       throwError(res, error);
     }
@@ -20,8 +20,7 @@ export class UsersController {
     const { id } = params;
     try {
       const user = await userService.findUserById(id);
-      const data = user ? user : "NOT_FOUND";
-      return res.status(200).json(data);
+      res.status(200).json(user);
     } catch (error) {
       throwError(res, error);
     }
@@ -31,7 +30,7 @@ export class UsersController {
     const user = req.body;
     try {
       const newUser = await userService.createUser(user);
-      return res.status(201).json(newUser);
+      res.status(201).json(newUser);
     } catch (error) {
       throwError(res, error);
     }

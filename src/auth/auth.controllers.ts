@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { throwError } from "@/utils/error.handlers";
 import { UsersService } from "@/services/user.services";
-import { TokensServices } from "@/services/token.services";
+import { TokensService } from "@/services/token.services";
 import { AuthService } from "./auth.services";
 import exclude from "@/utils/exclude";
 import { MailService } from "@/config/transport";
 
 const userService = new UsersService();
 const authService = new AuthService();
-const tokenService = new TokensServices();
+const tokenService = new TokensService();
 const mailService = new MailService();
 
 export class AuthController {

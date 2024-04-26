@@ -14,18 +14,19 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  username  String     @unique
-  email     String     @unique
-  password  String
-  isActive  Boolean    @default(true)
-  role      Role       @default(USER)
-  post      Posts[]
-  profile   Profile?
-  reaction  Reaction[]
-  token     Token[]
+  id          String               @id @default(uuid())
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  username    String               @unique
+  email       String               @unique
+  password    String
+  isActive    Boolean              @default(true) @map("is_active")
+  role        Role                 @default(USER)
+  post        Posts[]
+  profile     Profile?
+  reaction    Reaction[]
+  token       Token[]
+  communities UsersOnCommunities[]
 
   @@map("users")
 }
@@ -38,7 +39,7 @@ model Token {
   blacklisted Boolean
   createdAt   DateTime  @default(now()) @map("created_at")
   user        User      @relation(fields: [userId], references: [id])
-  userId      String
+  userId      String    @map("user_id")
 
   @@map("tokens")
 }
@@ -49,9 +50,9 @@ model Profile {
   updatedAt DateTime @updatedAt @map("updated_at")
   bio       String
   birthday  DateTime
-  imageUrl  String
+  imageUrl  String   @map("image_url")
   user      User     @relation(fields: [userId], references: [id])
-  userId    String   @unique
+  userId    String   @unique @map("user_id")
 
   @@map("profiles")
 }
@@ -76,9 +77,9 @@ model Reaction {
   updatedAt DateTime @updatedAt @map("updated_at")
   type      String
   user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  userId    String   @map("user_id")
   post      Posts    @relation(fields: [postId], references: [id])
-  postId    String
+  postId    String   @map("post_id")
 
   @@map("reactions")
 }
@@ -91,6 +92,29 @@ model Category {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("categories")
+}
+
+model Community {
+  id          Int                  @id @unique @default(autoincrement())
+  name        String
+  description String
+  users       UsersOnCommunities[]
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+
+  @@map("communities")
+}
+
+model UsersOnCommunities {
+  id          Int       @id @unique @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String    @map("user_id")
+  community   Community @relation(fields: [communityId], references: [id])
+  communityId Int       @map("community_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("users_on_communities")
 }
 
 enum Role {

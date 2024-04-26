@@ -1,13 +1,13 @@
 import { TokenType, User } from "@prisma/client";
 import { UsersService } from "@/services/user.services";
 import prisma from "@/config/prisma";
-import { TokensServices } from "@/services/token.services";
+import { TokensService } from "@/services/token.services";
 import ErrorApi from "@/utils/errorApi";
 import { HttpStatus } from "@/enums/https-status.enum";
 import { crypted, compare } from "@/utils/crypto";
 
 const userService = new UsersService();
-const tokensService = new TokensServices();
+const tokensService = new TokensService();
 
 export class AuthService {
   constructor() {}

@@ -10,7 +10,7 @@ import { HttpStatus } from "@/enums/https-status.enum";
 
 const userService = new UsersService();
 
-export class TokensServices {
+export class TokensService {
   generateToken = (
     id: string,
     expires: Moment,
