@@ -22,7 +22,7 @@ model User {
   password  String
   isActive  Boolean    @default(true)
   role      Role       @default(USER)
-  post      Posts[]
+  post      Post[]
   profile   Profile?
   reaction  Reaction[]
   token     Token[]

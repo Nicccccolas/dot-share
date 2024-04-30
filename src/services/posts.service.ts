@@ -1,5 +1,5 @@
+import prisma from "@/config/prisma";
 import { UserNotFoundException } from "@/errors/user-not-found.exception";
-import { prisma } from "@/libs/prisma";
 import { Post } from "@/models/post.model";
 import { CreatePostParams } from "@/types/post";
 
@@ -21,7 +21,7 @@ export class PostsService {
    */
   public async create(fields: CreatePostParams): Promise<Post> {
     const { data } = fields;
-    const userFound = await prisma.users.findUnique({
+    const userFound = await prisma.user.findUnique({
       where: { id: data.authorId }
     });
 
